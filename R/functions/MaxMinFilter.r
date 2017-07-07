@@ -1,6 +1,6 @@
 #' Filtro 'minmaxFilter' para spar remover outliers em vetores numericos
 #' Quanto menor o valor de 'n' dados observados a direta e esquerda, maior a remocao de dados/outliers
-minmaxFilter <- function(y, n)
+MaxMinFilter <- function(y, n)
 {
 	yf = y
 	sz = length(y)
