@@ -5,7 +5,14 @@
 #Instituto de Pesquisa Ambiental da Amaz?nia (IPAM)
 #Abril 18, 2013
 #
-#Script para calcular indice de vegetcao iplementado pelo prof. Luis Baumann
+#'Passos para classificar pixels de pastagens
+#'1 - remover outliers
+#'2 - suavizar a serie temporal
+#'3 - segmentar a serie temporal em anos
+#'4 - clusterizar a serie temporal
+#'5 - modelar a serie de cada cluster
+#'6 - classificar a series de validacao
+#'7 - analisar eficacia
 #
 ####################################################################################
 ####################################################################################
@@ -14,11 +21,12 @@ options(scipen = 999)
 library(raster)
 library(forecast)
 library(parallel)
-library(animation)
 library(mFilter)
+library(ggplot2)
 source("functions/MaxMinFilter.r")
 source("functions/ExtractSeasonalMetrics.r")
 source("functions/ZonalParallel.r")
+source("functions/DateFromNames.r")
 rasterOptions(tmpdir = "E:\\DATASAN\\temp")
 ###
 ###
@@ -42,8 +50,15 @@ TS.or = ts(pix, start = 2001, frequency = 23)
   
   plot(TS.or, t = 'l', col = 'black')
   lines(TS.hp.trend, t = 'l', col = 'red', lwd = 2)
+  ##Figura por parcela
+  ggplot(TS.or, aes(y = as.numeric(TS.or), x =time(TS.or))) +
+    geom_point(size = 1)+
+    geom_line(size=.4, color = "blue")+
+    labs(list(x = "Data", y = "NDVI",size=3, title = "Pixel NDVI"))+
+    theme_bw(base_size = 10)
 
   
+    
 NCycmx = cbind(c(2001:2016), rep(20,16)) # começar no mês 10[19] ou 4[7] | ((23/12)*10)
 NCycmn = cbind(c(2001:2016), rep(10,16)) # começar no mês 10[19] ou 4[7] | ((23/12)*10)
 
@@ -76,36 +91,17 @@ lapply()
   }
   
 
+ls.f = list.files(path = "H:\\DATASAN\\NDVI_RO")
 
+DateFromNames(ls.f, 24)
 
-
-
+substr(ls.f[1], 24,30)
 
 
 ####################################################################################
 ####################################################################################
 
-pix
 
 
-df<-data.frame(xmin=as.Date(c("2008-10-01","2009-10-01","2010-10-01","2011-10-01","2012-10-01","2013-10-01","2014-10-01")),
-               xmax=as.Date(c("2008-04-01","2009-04-01","2010-04-1","2011-04-1","2012-04-01","2013-04-01","2014-04-01")),
-               ymin=c(-Inf,-Inf,-Inf,-Inf,Inf,Inf,Inf),
-               ymax=c(Inf,Inf,Inf,Inf,Inf,Inf,Inf),
-               years=c("2008s","2009s","2010s","2011s","2012s","2013s","2014s"))
-
-
-##Figura por parcela
-##
-p.d=ggplot(smetd.r[smetd.r$Var=="windSpd" ,], aes(y = Value, x=DT, shape=Var,color=Var)) +
-  #geom_point(size = 1)+
-  geom_line(size=.4, color = "orange")+
-  facet_grid(Var~., scales = "free_y")+
-  labs(list(x = "Data", y = expression(paste("Valores"))),size=3)+
-  scale_x_date(breaks = "1 year", minor_breaks = "1 month", labels=date_format("%Y%m%d")) +
-  geom_rect(data=df,aes(xmin=xmin,xmax=xmax,ymin = -Inf, ymax = Inf),alpha=0.2,inherit.aes=FALSE)+
-  scale_fill_manual(values=c("gray","gray","gray","gray","gray","gray","gray"))+
-  theme_bw(base_size = 10)
-#theme(legend.justification=c(1.1,-.8), legend.position=c(1.01,0.5), legend.title = element_text(colour="black", size=16, face="bold"))
-#ggsave(p.d,file="H:\\Dropbox\\trabalho\\dados_by_colab\\Grupo_Maggi\\dados_di�rios.jpg", dpi = 300, width=10, height=6 )						
-ggsave(p.d,file="H:\\Dropbox\\trabalho\\dados_by_colab\\Marcia_Macedo\\dados_diarios.jpg", dpi = 300, width=10, height=4 )						
+####################################################################################
+####################################################################################
