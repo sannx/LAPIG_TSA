@@ -27,6 +27,7 @@ source("functions/MaxMinFilter.r")
 source("functions/ExtractSeasonalMetrics.r")
 source("functions/ZonalParallel.r")
 source("functions/DateFromNames.r")
+
 rasterOptions(tmpdir = "E:\\DATASAN\\temp")
 ###
 ###
@@ -36,72 +37,64 @@ ndvi = read.csv("../data/NDVI_Campo_LapEmb_2017_pixmodis.csv")
 ###
 ###
 #Original time serie
-pix <- as.numeric(ndvi[1,9:400])
+pix <- as.numeric(ndvi[1,29:396])
 
+###
+###
 #Filter with MaxMinFilter to remove outliers
 pix_mm <- MaxMinFilter(pix, 3)
 
   plot(pix, t = 'l', col = 'black')
   lines(pix_mm, t = 'l', col = 'red')
 
-#Smooth time serie to find min and max values.
+###
+###
+ #Smooth time serie to find min and max values.
 TS.or = ts(pix, start = 2001, frequency = 23)
   TS.hp.trend = mFilter(TS.or,filter = "HP", freq = 1)$trend  # Hodrick-Prescott filter
   
-  plot(TS.or, t = 'l', col = 'black')
+  plot(TS.or, t = 'b', col = 'black')
   lines(TS.hp.trend, t = 'l', col = 'red', lwd = 2)
-  ##Figura por parcela
-  ggplot(TS.or, aes(y = as.numeric(TS.or), x =time(TS.or))) +
-    geom_point(size = 1)+
-    geom_line(size=.4, color = "blue")+
-    labs(list(x = "Data", y = "NDVI",size=3, title = "Pixel NDVI"))+
-    theme_bw(base_size = 10)
 
+###
+###
+#Extract seasonal metrics from time serie
+SeasonalMetricsGRAPH(pix)  
+
+###
+###
+#split time serie by cycle
+plot(TS.hp.trend, t = 'b', col = 'black')
+for (i in 0:15) {
+  TSWd <- window(TS.hp.trend, (start(TS.hp.trend)[1] + i), c(start(TS.hp.trend)[1] + i, frequency(TS.hp.trend)))
+  lines(TSWd, col = 'red', lwd = 3)
+}
+
+####################################################################################
+####################################################################################
+
+#Apply filter Max min in matrix
+  ST = Sys.time()
+  ndvi_mm = t(apply(ndvi[,374:396], 1, MaxMinFilter, n = 2))
+  Sys.time() - ST
+
+#Smooth time serie to find min and max values.
+  TS.or = ts(pix, start = 2016, frequency = 23)
+  TS.hp.trend = mFilter(TS.or,filter = "HP", freq = 1)$trend  # Hodrick-Prescott filter
+
+#Cluster
   
-    
-NCycmx = cbind(c(2001:2016), rep(20,16)) # começar no mês 10[19] ou 4[7] | ((23/12)*10)
-NCycmn = cbind(c(2001:2016), rep(10,16)) # começar no mês 10[19] ou 4[7] | ((23/12)*10)
+  
+  hc <- hclust(dist(ndvi_mm), "ave")
+  plot(hc, hang = -1)
 
-  MEAPIX = mean(TS.or)
+  cl <- kmeans(ndvi_mm, 4)  
+  plot(x, col = cl$cluster)
+  points(cl$centers, col = 1:2, pch = 8, cex = 2)
  
-  c(end(TS.hp.trend) - start(TS.hp.trend))[1]
-  
-  2000.49:2017.49
-  
-  window(TS.hp.trend, start(TS.hp.trend), start(TS.hp.trend))
-  
-  lapply(split(TS, cycle(TS)), mean)
-  
+  (cl <- kmeans(ndvi_mm, 5, nstart = 25))
+  plot(x, col = cl$cluster)
+  points(cl$centers, col = 1:5, pch = 8)
    
-lapply()
-  
-  for (i in 1:nrow(NCycmx) )
-  {
-    # cat('loop', 'CICLO', i, '\n')
-    TSYmn = window(TS.hp.trend, NCycmn[i,], c(NCycmn[i,][1], (NCycmn[i,][2] + 10) ))
-    DTmn = time(TSYmn)
-    VLMIN[i] = min(na.omit(TSYmn))
-    DTMIN[i] = DTmn[ which(TSYmn %in% VLMIN[i]) ]
-    
-    
-    TSYmx = window(TS.hp.trend, NCycmx[i,], c(NCycmx[i,][1], (NCycmx[i,][2] + 13) ))
-    DTmx = time(TSYmx)
-    VLMAX[i] = max(na.omit(TSYmx))
-    DTMAX[i] = DTmx[ which(TSYmx %in% VLMAX[i]) ]
-  }
-  
-
-ls.f = list.files(path = "H:\\DATASAN\\NDVI_RO")
-
-DateFromNames(ls.f, 24)
-
-substr(ls.f[1], 24,30)
-
-
-####################################################################################
-####################################################################################
-
-
-
 ####################################################################################
 ####################################################################################
