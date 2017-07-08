@@ -28,19 +28,19 @@ ndvi[,9:400]
 
 ###
 ###
-pix <- as.numeric(ndvi[1,9:400])
-pix_mm <- minmaxFilter(pix)
+pix <- as.numeric(ndvi[1,29:400])
+pix_mm <- MaxMinFilter(pix, 3)
 
-plot(pix, t = 'l', col = 'black')
+maxplot(pix, t = 'l', col = 'black')
 lines(pix_mm, t = 'l', col = 'red')
 
 
 ST = Sys.time()
-ndvi_mm = t(apply(ndvi[,9:400], 1, minmaxFilter, n = 2))
+ndvi_mm = t(apply(ndvi[,29:400], 1, MaxMinFilter, n = 3))
 Sys.time() - ST #0.002615826 by pixel
 
 ST = Sys.time()
-szmtt = apply(ndvi_mm, 1, SeasonalMetrics)
+szmtt = apply(ndvi_mm, 1, SeasonalMetricsGRAPH)
 Sys.time() - ST #0.1859628 by pixel
 
 cl <- makeCluster(detectCores() - 1)
