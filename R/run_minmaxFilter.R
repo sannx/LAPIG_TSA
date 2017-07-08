@@ -18,6 +18,7 @@ library(animation)
 source("functions/MaxMinFilter.r")
 source("functions/ExtractSeasonalMetrics.r")
 source("functions/ZonalParallel.r")
+source("functions/DateFromNames.r")
 rasterOptions(tmpdir = "E:\\DATASAN\\temp")
 ###
 ###
@@ -76,89 +77,12 @@ ST = Sys.time()
 saveGIF(apply(ndvi_mm, 1, SeasonalMetricsGRAPH), interval = .8)
 Sys.time() - ST #0.1859628 by pixel
 
+###
+###
+#Date From Names
+ls.files <- dir("S:\\QUALIDADE_PASTAGEM\\NDVI_TSA\\1_BRASIL\\NDVI\\")
+ls.files = Sys.glob('*ndvi*.tif')
+DateFromNames(ls.files, 16)
+
 ####################################################################################
 ####################################################################################
-
-y = as.numeric(ndvi[1,])
-
-
-YearlySegment <- function(y, n)
-{
-  yf = y
-  sz = length(y)
-  n = 23
-  TS = ts(yf[9:400], start = 2000.49, frequency = 23)
-  
-  window(TS, start())
-  
-         
-  cycle(TS)
-  
-  2000.49:2017.49
-  
-         split(TS, cycle(TS))
-  
-         lapply(split(TS, cycle(TS)), mean)
-         
-  for (i in 1:sz) {
-    
-    istart <- max(1, i - n) #Nice(san)!!
-    iend	 <- min( sz, i + n)
-    id     <- (istart:iend)
-    dt     <- y[id]
-    
-    mm	<- min( y[id] );
-    MM	<- max( y[id] );
-    
-    if (y[i] == mm || y[i] == MM) {
-      yf[i] <- (sum( y[id] ) - y[i])/(length(id) - 1);
-    } else {
-      yf[i]
-    }
-  }
-  return(yf)
-}
-
-
-
-library(raster)
-library(doSNOW)
-
-#create list containing test rasters
-
-x <- raster(ncol = 10980, nrow = 10900) 
-x <- setValues(x,1:ncell(x)) 
-
-list.x <- replicate( 9 , x )
-list.x2 = stack(list.x)
-#setting up cluster
-
-NumberOfCluster <- 8
-cl <- makeCluster(NumberOfCluster)
-registerDoSNOW(cl)
-junk <- clusterEvalQ(cl,library(raster))
-
-#perform calculations on each raster
-
-list.x <- parLapply(cl,list.x,function(x) calc(x,function(x) { x * 10 }))
-
-#stop cluster
-
-stopCluster(cl)
-
-
-ff <- parSapply(cl, list.x2, function(x) { 
-  calc(x, sum)
-  f
-})
-
-s <- stack(ff)
-
-
-f2 <- function(x) {
-    time = 1:length(x)
-    bptest(lm(x ~ time))$p.value
-  }
-
-
-clusterR(cl)
