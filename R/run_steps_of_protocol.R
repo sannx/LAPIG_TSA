@@ -35,6 +35,8 @@ rasterOptions(tmpdir = "E:\\DATASAN\\temp")
 #ndvi campo lapig embrapa
 ndvi = read.csv("../data/NDVI_Campo_LapEmb_2017_pixmodis.csv")
 
+
+
 ###
 ###
 #Original time serie
@@ -56,7 +58,6 @@ TS.or = ts(pix, start = 2001, frequency = 23)
   
   plot(TS.or, t = 'b', col = 'black')
   lines(TS.hp.trend, t = 'l', col = 'red', lwd = 2)
-<<<<<<< HEAD
 
 ###
 ###
@@ -87,8 +88,8 @@ for (i in 0:15) {
 #Cluster
   hc <- hclust(dist(ndvi_mm), "ave")
   plot(hc, hang = -1)
-=======
 
+  
 ###
 ###
 #Extract seasonal metrics from time serie
@@ -102,14 +103,11 @@ for (i in 0:15) {
   TSWd <- window(TS.hp.trend, (start(TS.hp.trend)[1] + i), c(start(TS.hp.trend)[1] + i, frequency(TS.hp.trend)))
   lines(TSWd, col = 'red', lwd = 3)
 }
->>>>>>> 94270131ee1012f212b7b28a8155c889f740ac83
 
   cl <- kmeans(ndvi_mm, gmm_1)  
   plot(ndvi_mm, col = cl$cluster)
   points(cl$centers, col = 1:4, pch = 8, cex = 2)
 
-<<<<<<< HEAD
- 
   (cl <- kmeans(ndvi_mm, 2, nstart = 25))
   plot(x, col = cl$cluster)
   points(cl$centers, col = 1:5, pch = 8)
@@ -122,8 +120,8 @@ for (i in 0:15) {
        main2="Cluster NDVI", xlab2="NDVI")   
 
   hist(ndvi_mm)
-=======
-#Apply filter Max min in matrix
+
+  #Apply filter Max min in matrix
   ST = Sys.time()
   ndvi_mm = t(apply(ndvi[,374:396], 1, MaxMinFilter, n = 2))
   Sys.time() - ST
@@ -131,7 +129,6 @@ for (i in 0:15) {
 #Smooth time serie to find min and max values.
   TS.or = ts(pix, start = 2016, frequency = 23)
   TS.hp.trend = mFilter(TS.or,filter = "HP", freq = 1)$trend  # Hodrick-Prescott filter
->>>>>>> 94270131ee1012f212b7b28a8155c889f740ac83
 
 #Cluster
   
@@ -161,4 +158,10 @@ for (i in 0:15) {
   x = c(rnorm(100), NA,NA)
   
 
+# trc <- raster("H:\\DATASAN\\terraclass\\terraclass_go.tif")
+# plot(trc)
+# unique(trc)
+
+
+    
   
