@@ -121,3 +121,34 @@ show(twdtw_assess)
 plot(twdtw_assess, type = "accuracy")
 
 plot(twdtw_assess, type = "area")
+
+
+################
+################
+################
+library(raster)
+r <- brick("F:\\DATASAN\\raster\\BHRV\\BHRV_CROP_pa_br_ndvi_ALL.tif")
+
+shp <- shapefile("F:\\DATASAN\\shapefile\\bhrv_uso_e_cobertura\\BHRV_uso_cobertura_2016_lapig_dissolve.shp")
+extr <- extract(r[[1]], shp[shp$Class_3 = '', ], cellnumbers = TRUE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
